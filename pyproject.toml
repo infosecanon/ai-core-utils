@@ -47,8 +47,8 @@ dev = [
 # Test dependencies
 
 [tool.setuptools]
-packages = ["core"]
 package-dir = {"" = "src"}
+packages = { find = { where = ["src"] } }
 
 [tool.ruff.lint]
 # Enforce PEP8 and other rules
