@@ -1,0 +1,15 @@
+EDP_ENVIRONMENT: 'Development'
+
+POSTGRES:
+  PG_HOST: 'localhost'
+  PG_PORT: 5432
+  PG_USER: 'postgres'
+  PG_DATABASE: 'reveal'
+  PG_LOGTABLENAME: 'log_pipeline'
+  # PG_PASSWORD is set as an environment variable!
+
+MONITORING:
+  EMAIL_RECIPIENTS: [test@test.com]
+  SENDER_EMAIL: test@test.com
+  SMTP_SERVER: test.test.net
+  SMTP_PORT: 25

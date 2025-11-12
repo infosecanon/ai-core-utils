@@ -1,0 +1,78 @@
+[project]
+name = "core"
+version = "0.1.0"
+description = "Core utilities for AI and Data Engineering projects."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+# --- Core Dependencies ---
+# Add all dependencies needed by your functions
+dependencies = [
+    "pandas",
+    "pydantic",         # For config.py
+    "pydantic-settings",  # For loading from env vars
+    "psutil",           # For monitoring.py
+    "sqlalchemy",       # For connectors/postgres.py
+    "psycopg2-binary",  # Postgres driver
+    "python-dotenv",    # To load .env files
+    "pyyaml",           # To load cfg.yml
+    "boto3",            # For connectors/aws.py
+    "azure-identity",   # For connectors/azure.py
+    "snowflake-sqlalchemy", # For connectors/snowflake.py
+    "simple-salesforce" # For connectors/salesforce.py
+]
+
+[project.optional-dependencies]
+# --- Development Dependencies ---
+# For testing, linting, and building
+dev = [
+    "pytest==8.3.5",    # Testing
+    "coverage",         # Test coverage
+    "ruff==0.14.4",     # Linter & Formatter (Modern Tooling)
+    "mypy",             # Typing (Docstrings & Typing)
+    "pre-commit",       # CI/CD
+    "nbstripout",       # Notebook Hygiene
+    "pytest-env",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-timeout"
+]
+
+# Test dependencies
+
+[tool.setuptools]
+packages = ["core"]
+package-dir = {"" = "src"}
+
+[tool.ruff.lint]
+# Enforce PEP8 and other rules
+#line-length = 88
+select = ["E", "F", "W", "I", "UP"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+# Enforce strict typing
+strict = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "simple_salesforce"
+ignore_missing_imports = true
+disable_error_code = "attr-defined"
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = "misc"
+
+[[tool.mypy.overrides]]
+module = "src.core.config"
+disable_error_code = "misc"
