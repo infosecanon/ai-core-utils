@@ -1,0 +1,23 @@
+@startuml
+participant "save_data"
+participant "parse_row"
+participant "process_data"
+participant "load_data"
+participant "main"
+"main" -> "load_data": load_data('data.csv')
+activate "load_data"
+"load_data" --> "main": return 'some,csv,data'
+deactivate "load_data"
+"main" -> "process_data": process_data('some,csv,data')
+activate "process_data"
+"process_data" --> "main": return 'processed_data'
+deactivate "process_data"
+"main" -> "save_data": save_data('processed_data', 'output.pkl')
+activate "save_data"
+"save_data" --> "main": return True
+deactivate "save_data"
+"main" -> "load_data": load_data('other_file.csv')
+activate "load_data"
+"load_data" -x "main": raise FileNotFoundError
+deactivate "load_data"
+@enduml

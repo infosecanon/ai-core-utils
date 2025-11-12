@@ -10,16 +10,16 @@ from pytest import MonkeyPatch
 def test_warning_emitted_when_no_recipients(
     monkeypatch: MonkeyPatch, caplog: Any
 ) -> None:
-    # 1. Make sure the logger we use has the right level
+    # Make sure the logger we use has the right level
     logger = logging.getLogger("core.alerting")
-    logger.setLevel(logging.WARNING)  # <- guarantees WARNING will go through
-    logger.propagate = True  # <- let it bubble up to root
+    logger.setLevel(logging.WARNING)  # guarantees WARNING will go through
+    logger.propagate = True  # let it bubble up to root
 
-    # 2. Ensure it has at least one handler (prevents “no handler” suppression)
+    # Ensure it has at least one handler (prevents “no handler” suppression)
     if not logger.handlers:
         logger.addHandler(logging.NullHandler())
 
-    # 3. Tell caplog to capture everything at WARNING or above
+    # Tell caplog to capture everything at WARNING or above
     caplog.set_level(logging.WARNING)  # sets root logger level
 
 
@@ -30,7 +30,7 @@ def test_send_error_email_success(
     Tests that send_error_email formats and sends
     a message correctly.
     """
-    # 1. CALL RELOAD FIRST
+    # CALL RELOAD FIRST
     reload_settings(
         {
             "MONITORING__EMAIL_RECIPIENTS": '["to@example.com"]',
@@ -40,7 +40,7 @@ def test_send_error_email_success(
         }
     )
 
-    # 2. APPLY MOCK *AFTER* RELOAD
+    # APPLY MOCK *AFTER* RELOAD
     mock_smtp_instance = MagicMock()
     # This line is new: it mocks the context manager ('with' statement)
     mock_smtp_instance.__enter__.return_value = mock_smtp_instance
@@ -73,7 +73,7 @@ def test_send_error_email_no_recipients(
     """
     Tests that no email is sent if no recipients are configured.
     """
-    # 1. CALL RELOAD FIRST
+    # CALL RELOAD FIRST
     reload_settings(
         {
             "MONITORING__EMAIL_RECIPIENTS": "[]",
@@ -90,19 +90,19 @@ def test_send_error_email_no_recipients(
     )
     print(f"DEBUG: Type: {type(settings.MONITORING.EMAIL_RECIPIENTS)}")
 
-    # 2. APPLY MOCK *AFTER* RELOAD
+    # APPLY MOCK *AFTER* RELOAD
     mock_smtp_instance = MagicMock()
     mock_smtp_class = MagicMock(return_value=mock_smtp_instance)
     monkeypatch.setattr(smtplib, "SMTP", mock_smtp_class)
 
-    # 3. Clear any existing logs and set up capture
+    # Clear any existing logs and set up capture
     caplog.clear()
 
-    # 4. Set up the logger properly
+    # Set up the logger properly
     logger = logging.getLogger("core.alerting")
     logger.setLevel(logging.INFO)
 
-    # 5. Call the function
+    # Call the function
     try:
         1 / 0
     except Exception as e:
@@ -111,6 +111,6 @@ def test_send_error_email_no_recipients(
     print("Captured logs:", repr(caplog.text))
     print("Records:", caplog.records)
 
-    # 6. Assertions
+    # Assertions
     assert not mock_smtp_instance.send_message.called
     assert "No EMAIL_RECIPIENTS configured" in caplog.text

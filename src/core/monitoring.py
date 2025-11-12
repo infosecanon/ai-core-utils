@@ -19,7 +19,7 @@ import pandas as pd
 import psutil
 from typing_extensions import Self
 
-# Import from our new library modules
+# Import from library modules
 from .alerting import send_error_email
 from .connectors.postgres import (
     create_postgres_engine,
@@ -28,12 +28,11 @@ from .connectors.postgres import (
     write_to_database as write_monitoring_db,
 )
 
-# 1. Create a ParamSpec to capture the arguments
+# Create a ParamSpec to capture the arguments
 P = ParamSpec("P")
 
-# 2. Create a TypeVar to capture the return type
+# Create a TypeVar to capture the return type
 R = TypeVar("R")
-
 
 # Get a logger instance for this module
 logger = logging.getLogger(__name__)

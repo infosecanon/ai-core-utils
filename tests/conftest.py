@@ -21,19 +21,19 @@ def reload_settings(monkeypatch: MonkeyPatch) -> Any:
         Helper function that sets env vars and triggers the reload.
         This is what the test function will call.
         """
-        # 1. Set the new env vars
+        # Set the new env vars
         for k, v in vars_dict.items():
             if v == "":
                 monkeypatch.delenv(k, raising=False)
             else:
                 monkeypatch.setenv(k, v)
 
-        # 2. NOW, clear caches
+        # NOW, clear caches
         config_module.get_settings.cache_clear()
         if hasattr(postgres, "create_postgres_engine"):
             postgres.create_postgres_engine.cache_clear()
 
-        # 3. Reload all modules
+        # Reload all modules
         try:
             importlib.reload(config_module)
             importlib.reload(alerting)
@@ -52,7 +52,6 @@ def reload_settings(monkeypatch: MonkeyPatch) -> Any:
     # --- Teardown (after test) ---
     config_module.get_settings.cache_clear()
 
-    # --- AND ADD THIS LINE ---
     if hasattr(postgres, "create_postgres_engine"):
         postgres.create_postgres_engine.cache_clear()
 

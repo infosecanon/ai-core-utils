@@ -16,10 +16,10 @@ def mock_monitoring_deps(monkeypatch: MonkeyPatch, reload_settings: Any) -> Any:
     - write_monitoring_db
     - MonitorScript (to prevent threading)
     """
-    # 1. CALL RELOAD FIRST, INSIDE THE FIXTURE
+    # Call reload FIRST, INSIDE the fixture
     reload_settings({})
 
-    # 2. NOW, APPLY PATCHES
+    # Apply patches
     mock_send = MagicMock()
     mock_create_engine = MagicMock()
     mock_write_db = MagicMock()
@@ -47,7 +47,6 @@ def test_monitor_script_success(mock_monitoring_deps: Any) -> None:
     Tests that the decorator calls the function, logs to DB,
     and does NOT send an email on success.
     """
-    # --- REMOVED reload_settings({}) call ---
     mock_send, mock_write_db, _ = mock_monitoring_deps
 
     @monitor_script(main_function_name="test_success")
@@ -58,7 +57,7 @@ def test_monitor_script_success(mock_monitoring_deps: Any) -> None:
 
     assert result == "Total Records Updated: 10"
     assert not mock_send.called
-    assert mock_write_db.called  # This will now pass
+    assert mock_write_db.called
 
 
 def test_monitor_script_failure(mock_monitoring_deps: Any) -> None:
@@ -66,7 +65,7 @@ def test_monitor_script_failure(mock_monitoring_deps: Any) -> None:
     Tests that the decorator catches an error, sends an email,
     logs to DB, and re-raises the error.
     """
-    # --- REMOVED reload_settings({}) call ---
+
     mock_send, mock_write_db, mock_instance = mock_monitoring_deps
 
     mock_summary_df_fail = pd.DataFrame({"records_updated": [0]})
@@ -79,5 +78,5 @@ def test_monitor_script_failure(mock_monitoring_deps: Any) -> None:
     with pytest.raises(ValueError, match="Something broke"):
         failing_func()
 
-    assert mock_send.called  # This will now pass
+    assert mock_send.called
     assert mock_write_db.called

@@ -16,10 +16,9 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
+
 # --- File Loading Logic ---
-
-
-def _yaml_config_settings_source(settings_cls: type[BaseSettings]) -> dict[str, Any]:
+def _yaml_config_settings_source() -> dict[str, Any]:
     """
     A Pydantic settings source that loads values from a YAML file.
     It searches up to 5 parent directories for 'cfg/cfg.yml'.
@@ -64,8 +63,6 @@ def _locate_config_file(cfg_file: str, max_depth: int = 5) -> Optional[str]:
 
 
 # --- Pydantic Schemas (Data Validation) ---
-
-
 class PostgresSettings(BaseModel):
     """Schema for PostgreSQL connection settings."""
 
@@ -115,8 +112,6 @@ class NvdApiSettings(BaseModel):
 
 
 # --- Main Settings Class ---
-
-
 class AppSettings(BaseSettings):
     """
     The main settings class for the application.
@@ -166,8 +161,6 @@ class AppSettings(BaseSettings):
 
 
 # --- Global Settings Singleton ---
-
-
 @lru_cache
 def get_settings() -> AppSettings:
     """

@@ -6,7 +6,7 @@ import pytest
 import yaml
 
 # We need to import the module this way to monkeypatch
-# its dependencies before the 'settings' singleton is created.
+# its dependencies before the 'settings' singleton is created
 from core import config as config_module
 from pydantic import ValidationError
 from pytest import MonkeyPatch
@@ -81,7 +81,6 @@ def test_load_from_yaml_file(reload_settings: Any, monkeypatch: MonkeyPatch) -> 
     )
 
     # Mock the function that loads the file
-    # --- FIX is here: Use *args, **kwargs ---
     monkeypatch.setattr(
         config_module, "_locate_config_file", lambda *args, **kwargs: "dummy/path.yml"
     )
@@ -114,7 +113,7 @@ def test_env_overrides_yaml(reload_settings: Any, monkeypatch: MonkeyPatch) -> N
         },
         "MONITORING": {"SMTP_SERVER": "yaml.smtp.com"},
     }
-    # --- FIX is here: Use *args, **kwargs ---
+
     monkeypatch.setattr(
         config_module, "_locate_config_file", lambda *args, **kwargs: "dummy/path.yml"
     )
@@ -127,7 +126,6 @@ def test_env_overrides_yaml(reload_settings: Any, monkeypatch: MonkeyPatch) -> N
         "POSTGRES__PG_PASSWORD": "env_password",
         "MONITORING__SMTP_SERVER": "env.smtp.com",
         "MONITORING__SMTP_PORT": "587",
-        # --- FIX: Provide missing required fields ---
         "POSTGRES__PG_USER": "env_user_for_this_test",
         "POSTGRES__PG_DATABASE": "env_db_for_this_test",
     }

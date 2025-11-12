@@ -13,6 +13,7 @@ classifiers = [
 # --- Core Dependencies ---
 # Add all dependencies needed by your functions
 dependencies = [
+    "colorlog",
     "pandas",
     "pydantic",         # For config.py
     "pydantic-settings",  # For loading from env vars
@@ -63,6 +64,7 @@ quote-style = "double"
 strict = true
 ignore_missing_imports = true
 plugins = ["pydantic.mypy"]
+mypy_path = "src"
 
 [[tool.mypy.overrides]]
 module = "simple_salesforce"
