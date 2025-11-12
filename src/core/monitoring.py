@@ -19,14 +19,11 @@ import pandas as pd
 import psutil
 from typing_extensions import Self
 
-# Import from library modules
 from core.alerting import send_error_email
-from core.connectors.postgres import (
-    create_postgres_engine,
-)
-from core.connectors.postgres import (
-    write_to_database as write_monitoring_db,
-)
+
+# Import from library modules
+from core.config import settings
+from core.connectors.postgres import create_postgres_engine
 
 # Create a ParamSpec to capture the arguments
 P = ParamSpec("P")
@@ -213,30 +210,68 @@ def monitor_script(
                         result
                     )
 
-                    # Write summary to the monitoring database
-                    try:
-                        # Use our new, standardized connectors
-                        engine = create_postgres_engine()
-                        write_monitoring_db(
-                            summary_row,
-                            monitoring_table,
-                            engine,
-                            monitoring_schema,
-                            "append",
+                    # --- 2. ADD THIS IF/ELSE BLOCK ---
+                    # Check the DB_TYPE from settings *before* trying to write
+                    if settings.POSTGRES.DB_TYPE == "postgresql":
+                        try:
+                            # Use our new, standardized connectors
+                            engine = create_postgres_engine()
+                            # Assuming this is a local alias for write_to_database
+                            write_monitoring_db(
+                                summary_row,
+                                monitoring_table,
+                                engine,
+                                monitoring_schema,
+                                "append",
+                            )
+                        except Exception as db_e:
+                            # If logging to DB fails, print and send email
+                            logger.critical(
+                                f"CRITICAL: Failed to write monitoring data "
+                                f"for {main_function_name}. Error: {db_e}",
+                                exc_info=True,
+                            )
+                            send_error_email(
+                                db_e,
+                                f"MONITORING_DB_WRITE_FAILURE ({main_function_name})",
+                            )
+                    else:
+                        # If not postgres, just log to console and skip DB write
+                        logger.info(
+                            f"Skipping Postgres monitoring log\n \
+                            (DB_TYPE is '{settings.POSTGRES.DB_TYPE}')."
                         )
-                    except Exception as db_e:
-                        # If logging to DB fails, print and send email
-                        logger.critical(
-                            f"CRITICAL: Failed to write monitoring data "
-                            f"for {main_function_name}. Error: {db_e}",
-                            exc_info=True,
-                        )
-                        send_error_email(
-                            db_e, f"MONITORING_DB_WRITE_FAILURE ({main_function_name})"
-                        )
+                    # --- END OF FIX ---
 
             return result
 
         return wrapper
 
     return decorator
+
+
+# Need to rename this function to match what the decorator is calling
+def write_monitoring_db(
+    df: pd.DataFrame,
+    table_name: str,
+    engine: Any,  # Use Engine when imported
+    schema: str,
+    if_exists: str,
+) -> None:
+    """Helper function to write monitoring df"""
+    # Use a connection from the engine
+    try:
+        with engine.connect() as conn:
+            df.to_sql(
+                name=table_name,
+                con=conn,
+                schema=schema,
+                if_exists=if_exists,
+                index=False,
+            )
+    except Exception as e:
+        logger.error(f"Database insert failed for {schema}.{table_name}: {e}")
+        # Send an email alert. No need to pass config!
+        send_error_email(e, f"Write to database {schema}.{table_name}")
+        # Re-raise the exception to fail the calling task
+        raise
