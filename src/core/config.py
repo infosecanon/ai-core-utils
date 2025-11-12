@@ -34,6 +34,7 @@ class EtlSettings(BaseModel):
 
     MAX_RETRIES: int = 2
     RETRY_DELAY: int = 60
+    UPDATE_FREQUENCY_HOURS: int = 6
 
 
 # --- File Loading Logic ---

@@ -20,11 +20,11 @@ import psutil
 from typing_extensions import Self
 
 # Import from library modules
-from .alerting import send_error_email
-from .connectors.postgres import (
+from core.alerting import send_error_email
+from core.connectors.postgres import (
     create_postgres_engine,
 )
-from .connectors.postgres import (
+from core.connectors.postgres import (
     write_to_database as write_monitoring_db,
 )
 
