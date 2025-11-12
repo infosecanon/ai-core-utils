@@ -17,6 +17,25 @@ from pydantic_settings import (
 )
 
 
+class ApiEndpointsSettings(BaseModel):
+    """Schema for external API endpoints."""
+
+    CISA_KEV_URL: str
+    EPSS_API_URL: str
+    NVD_API_URL: str
+    NVD_API_KEY: Optional[str] = None  # Will be loaded from env
+    NVD_RATE_LIMIT: int = 5
+    NVD_BATCH_SIZE: int = 10
+    NVD_BATCH_DELAY: int = 30
+
+
+class EtlSettings(BaseModel):
+    """Schema for ETL job settings."""
+
+    MAX_RETRIES: int = 2
+    RETRY_DELAY: int = 60
+
+
 # --- File Loading Logic ---
 def _yaml_config_settings_source() -> dict[str, Any]:
     """
@@ -64,30 +83,42 @@ def _locate_config_file(cfg_file: str, max_depth: int = 5) -> Optional[str]:
 
 # --- Pydantic Schemas (Data Validation) ---
 class PostgresSettings(BaseModel):
-    """Schema for PostgreSQL connection settings."""
+    """Schema for all Database connection settings."""
 
-    PG_HOST: str
+    # --- General ---
+    DB_TYPE: str = "sqlite"  # Default to sqlite
+
+    # --- SQLite ---
+    SQLITE_DB_NAME: str = "vulnerabilities.db"
+    SQLITE_DB_PATH: str = "data/vulnerabilities.db"
+
+    # --- Postgres ---
+    PG_HOST: Optional[str] = None
     PG_PORT: int = 5432
-    PG_USER: str
-    PG_PASSWORD: str = Field(..., repr=False)  # hide password in logs
-    PG_DATABASE: str
+    PG_USER: Optional[str] = None
+    PG_PASSWORD: Optional[str] = Field(None, repr=False)  # Make optional
+    PG_DATABASE: Optional[str] = None
+    PG_TABLENAME: Optional[str] = None
     PG_LOGTABLENAME: str = "log_pipeline"
+    LOG_OBJECT: Optional[str] = None
+    LOG_DATA_TABLE: Optional[str] = None
+
+    # --- Pool Settings ---
+    DB_POOL_SIZE: int = 10
+    DB_MAX_OVERFLOW: int = 20
+    DB_POOL_TIMEOUT: int = 30
+    DB_POOL_RECYCLE: int = 1800
 
     @property
     def dsn(self) -> str:
         """
         Return a SQLAlchemy-compatible DSN.
 
-        The test expects the credentials to be URL-encoded **without
-        underscores** (i.e. `env_user` → `envUser`).  Therefore we first
-        strip all underscores from the raw values, then apply
+        The test expects the credentials to be URL-encoded. Apply
         ``quote_plus`` to handle any special characters.
         """
-        # strip underscores, then quote
-        # encoded_user = quote_plus(self.PG_USER.replace("_", ""))
-        # encoded_pw = quote_plus(self.PG_PASSWORD.replace("_", ""))
-        encoded_user = quote_plus(self.PG_USER)
-        encoded_pw = quote_plus(self.PG_PASSWORD)
+        encoded_user = quote_plus(self.PG_USER or "")
+        encoded_pw = quote_plus(self.PG_PASSWORD or "")
 
         return (
             f"postgresql+psycopg2://{encoded_user}:{encoded_pw}"
@@ -128,7 +159,8 @@ class AppSettings(BaseSettings):
     # Nested configuration models
     POSTGRES: PostgresSettings
     MONITORING: MonitoringSettings
-    API_ENDPOINTS: Optional[NvdApiSettings] = None  # Example from your cfg.yml
+    API_ENDPOINTS: ApiEndpointsSettings
+    ETL: EtlSettings
 
     # This tells Pydantic how to load settings
     model_config = SettingsConfigDict(
