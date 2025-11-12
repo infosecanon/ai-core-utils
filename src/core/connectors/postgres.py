@@ -204,11 +204,15 @@ def write_to_database(
             ('append', 'replace', 'fail').
     """
     try:
-        df.to_sql(
-            name=table_name, con=engine, schema=schema, if_exists=if_exists, index=False
-        )
-        logger.info(f"Successfully wrote {len(df)} rows to {schema}.{table_name}.")
-
+        # Use a connection from the engine
+        with engine.connect() as conn:
+            df.to_sql(
+                name=table_name,
+                con=conn,  # <-- Pass the connection, not the engine
+                schema=schema,
+                if_exists=if_exists,
+                index=False,
+            )
     except Exception as e:
         logger.error(
             f"Database insert failed for {schema}.{table_name}: {e}", exc_info=True
