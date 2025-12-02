@@ -50,10 +50,19 @@ jobs:
       continue-on-error: true
 
     # 8. Run Pytest
-    # We generate JUnit XML to visualize results in the PR
     - name: Run Pytest
       env:
+        # 1. PYTHONPATH ensures pytest finds 'src/core'
         PYTHONPATH: src
+
+        # 2. Mock missing config values so Pydantic doesn't crash at import time.
+        #    We use JSON strings because Pydantic Settings can parse them into dictionaries.
+        API_ENDPOINTS: '{"some_endpoint": "http://mock-url"}'
+        ETL: '{"some_config": "mock-value"}'
+
+        # 3. Ensure other required vars are present (if needed)
+        EDP_ENVIRONMENT: "Test"
+
       run: python -m pytest --junitxml=test-results.xml
 
     # 9. Publish Test Results (The GHA equivalent of the 'Tests' tab)
