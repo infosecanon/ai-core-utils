@@ -1,4 +1,4 @@
-# ai_utils_core
+# ai_core_utils
 
 Core utilities for AI and Data Engineering projects.
 
