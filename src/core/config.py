@@ -20,13 +20,13 @@ from pydantic_settings import (
 class ApiEndpointsSettings(BaseModel):
     """Schema for external API endpoints."""
 
-    CISA_KEV_URL: str
-    EPSS_API_URL: str
-    NVD_API_URL: str
-    NVD_API_KEY: Optional[str] = None  # Will be loaded from env
-    NVD_RATE_LIMIT: int = 5
-    NVD_BATCH_SIZE: int = 10
-    NVD_BATCH_DELAY: int = 30
+    # CISA_KEV_URL: str
+    # EPSS_API_URL: str
+    # NVD_API_URL: str
+    # NVD_API_KEY: Optional[str] = None  # Will be loaded from env
+    # NVD_RATE_LIMIT: int = 5
+    # NVD_BATCH_SIZE: int = 10
+    # NVD_BATCH_DELAY: int = 30
 
 
 class EtlSettings(BaseModel):
