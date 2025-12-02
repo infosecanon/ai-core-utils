@@ -35,7 +35,7 @@ jobs:
         python -m pip install pyarrow --only-binary :all:
         python -m pip install -r requirements.txt
         # Dev dependencies
-        python -m pip install pytest ruff mypy pandas types-requests types-PyYAML
+        python -m pip install pytest ruff mypy pandas types-requests types-PyYAML pydantic-settings
 
     # 6. Run Ruff
     # continue-on-error: true lets the pipeline proceed to Mypy even if Ruff fails
