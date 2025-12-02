@@ -61,7 +61,7 @@ def test_logging_level_override() -> None:
     """
     Tests that passing a log level string overrides the environment.
     """
-    setup_logging(log_level_str="WARNING")
+    setup_logging(log_level_override="WARNING")
 
     root_logger = logging.getLogger()
     assert root_logger.level == logging.WARNING
