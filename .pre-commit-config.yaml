@@ -1,7 +1,7 @@
 # See https://pre-commit.com for more information
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -10,7 +10,7 @@ repos:
 
   # --- Code Style & Linting ---
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.5.1'
+    rev: 'v0.14.7'
     hooks:
       - id: ruff
         args: [ --fix ] # Auto-fix linting errors
@@ -18,7 +18,7 @@ repos:
 
   # --- Typing ---
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.10.1'
+    rev: 'v1.19.0'
     hooks:
       - id: mypy
         args: [ --config-file=pyproject.toml ]
@@ -29,16 +29,17 @@ repos:
             "sqlalchemy",
             "types-psutil",
             "types-pyyaml",
+            "pytest"
         ]
 
   # --- Notebook Hygiene ---
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
+    rev: 0.8.2
     hooks:
       - id: nbstripout
 
   # --- Secrets Management ---
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.4
+    rev: v8.30.0
     hooks:
       - id: gitleaks

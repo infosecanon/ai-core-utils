@@ -4,12 +4,12 @@ from urllib.parse import quote_plus
 
 import pytest
 import yaml
+from pydantic import ValidationError
+from pytest import MonkeyPatch
 
 # We need to import the module this way to monkeypatch
 # its dependencies before the 'settings' singleton is created
 from core import config as config_module
-from pydantic import ValidationError
-from pytest import MonkeyPatch
 
 
 @pytest.fixture(autouse=True)

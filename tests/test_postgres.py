@@ -4,12 +4,13 @@ from urllib.parse import quote_plus
 
 import pandas as pd
 import pytest
+from sqlalchemy.engine import Engine
+
 from core.connectors.postgres import (
     DBLog,
     create_postgres_engine,
     write_to_database,
 )
-from sqlalchemy.engine import Engine
 
 # Mock for the 'Table' object
 mock_table = MagicMock()

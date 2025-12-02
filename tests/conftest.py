@@ -2,11 +2,12 @@ import importlib
 from typing import Any
 
 import pytest
+from pydantic import ValidationError
+from pytest import MonkeyPatch
+
 from core import alerting, logging, monitoring
 from core import config as config_module
 from core.connectors import postgres
-from pydantic import ValidationError
-from pytest import MonkeyPatch
 
 
 @pytest.fixture

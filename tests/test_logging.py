@@ -3,6 +3,7 @@ from collections.abc import Iterator
 from typing import Any
 
 import pytest
+
 from core.logging import setup_logging
 
 

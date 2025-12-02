@@ -3,8 +3,9 @@ import smtplib
 from typing import Any
 from unittest.mock import MagicMock
 
-from core.alerting import send_error_email
 from pytest import MonkeyPatch
+
+from core.alerting import send_error_email
 
 
 def test_warning_emitted_when_no_recipients(

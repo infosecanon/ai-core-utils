@@ -3,8 +3,9 @@ from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
-from core.monitoring import monitor_script
 from pytest import MonkeyPatch
+
+from core.monitoring import monitor_script
 
 
 @pytest.fixture
