@@ -1,3 +1,23 @@
+import json
+import os
+
+# --- CRITICAL FIX: Mock environment variables BEFORE importing core ---
+# Pydantic validates settings immediately upon import. If these aren't set,
+# the test suite crashes with a ValidationError.
+if "API_ENDPOINTS" not in os.environ:
+    # Use real keys from ApiEndpointsSettings, even if they are just dummy values
+    os.environ["API_ENDPOINTS"] = json.dumps(
+        {
+            "CISA_KEV_URL": "http://mock",
+            "EPSS_API_URL": "http://mock",
+            "NVD_API_URL": "http://mock",
+        }
+    )
+if "ETL" not in os.environ:
+    os.environ["ETL"] = json.dumps({"batch_size": 100})
+if "EDP_ENVIRONMENT" not in os.environ:
+    os.environ["EDP_ENVIRONMENT"] = "Test"
+
 import importlib
 from typing import Any
 

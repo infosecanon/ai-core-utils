@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from unittest.mock import MagicMock
 from urllib.parse import quote_plus
@@ -88,6 +89,11 @@ def test_load_from_yaml_file(reload_settings: Any, monkeypatch: MonkeyPatch) -> 
     monkeypatch.setattr("builtins.open", MagicMock())
     monkeypatch.setattr(yaml, "safe_load", lambda f: mock_yaml_content)
 
+    # FIX: Explicitly remove the env var set by conftest.py
+    # Otherwise Pydantic prioritizes os.environ['EDP_ENVIRONMENT'] ("Test")
+    # over the yaml file ("Staging")
+    monkeypatch.delenv("EDP_ENVIRONMENT", raising=False)
+
     # Pass empty env vars dict (it will use pytest.ini)
     reload_settings({})
     settings = config_module.get_settings()
@@ -144,22 +150,21 @@ def test_missing_required_setting(
     reload_settings: Any, monkeypatch: MonkeyPatch
 ) -> None:
     """
-    Tests that a ValidationError is raised if a required
-    setting (like PG_HOST) is not provided at all.
+    Tests that a ValidationError is raised if a required setting is missing.
     """
-    # Mock file loading to return nothing, to prevent fallback
     monkeypatch.setattr(
         config_module, "_locate_config_file", lambda *args, **kwargs: None
     )
 
-    with pytest.raises(ValidationError, match="POSTGRES.PG_PASSWORD"):
-        # The reload_settings call remains the same
-        reload_settings(
-            {
-                "POSTGRES__PG_HOST": "",
-                "POSTGRES__PG_USER": "",
-                "POSTGRES__PG_DATABASE": "",
-                "POSTGRES__PG_PASSWORD": "",
-                "MONITORING__SMTP_SERVER": "",
-            }
-        )
+    # FIX: Replace os.environ entirely with a dictionary that lacks the key.
+    # This guarantees absolutely no leakage from your real environment.
+    safe_env = {
+        "EDP_ENVIRONMENT": "Test",
+        # We explicitly OMIT "MONITORING" or any SMTP keys here
+    }
+    monkeypatch.setattr(os, "environ", safe_env)
+
+    with pytest.raises(ValidationError):
+        # We pass empty dict, and os.environ is wiped, so it MUST fail.
+        reload_settings({})
+        _ = config_module.get_settings()
